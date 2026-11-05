@@ -5,39 +5,63 @@ from database import Base
 
 class Profile(Base):
     __tablename__ = "profiles"
+
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    full_name = Column(String)
-    email = Column(String, unique=True, index=True)
+    username = Column(String, unique=True, index=True, nullable=False)
+    full_name = Column(String, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password = Column(String, nullable=False)
     phone = Column(String, nullable=True)
+    avatar_url = Column(String, nullable=True)
+    banner_url = Column(String, nullable=True)
     bio = Column(String, nullable=True)
     is_corporate = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-class Listing(Base):
-    __tablename__ = "listings"
+    products = relationship("Product", back_populates="owner", cascade="all, delete-orphan")
+    bids = relationship("Bid", back_populates="user", cascade="all, delete-orphan")
+
+
+class Product(Base):
+    __tablename__ = "products"
+
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("profiles.id"))
-    title = Column(String, index=True)
-    content = Column(String)
-    category = Column(String, index=True)
-    start_price = Column(Float)
+    user_id = Column(Integer, ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False)
+    title = Column(String, index=True, nullable=False)
+    content = Column(String, nullable=False)
+    category = Column(String, index=True, nullable=False)
+    start_price = Column(Float, nullable=False)
     stock_count = Column(Integer, default=1)
+    photo_url = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
     start_date = Column(DateTime, default=datetime.utcnow)
+    end_date = Column(DateTime, nullable=True)
+
+    owner = relationship("Profile", back_populates="products")
+    bids = relationship("Bid", back_populates="product", cascade="all, delete-orphan")
+
 
 class Bid(Base):
     __tablename__ = "bids"
+
     id = Column(Integer, primary_key=True, index=True)
-    listing_id = Column(Integer, ForeignKey("listings.id"))
-    user_id = Column(Integer, ForeignKey("profiles.id"))
-    amount = Column(Float)
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False)
+    amount = Column(Float, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    product = relationship("Product", back_populates="bids")
+    user = relationship("Profile", back_populates="bids")
+
 
 class Message(Base):
     __tablename__ = "messages"
+
     id = Column(Integer, primary_key=True, index=True)
-    sender_id = Column(Integer, ForeignKey("profiles.id"))
-    receiver_id = Column(Integer, ForeignKey("profiles.id"))
-    content = Column(String)
+    sender_id = Column(Integer, ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False)
+    receiver_id = Column(Integer, ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False)
+    content = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    sender = relationship("Profile", foreign_keys=[sender_id])
+    receiver = relationship("Profile", foreign_keys=[receiver_id])
