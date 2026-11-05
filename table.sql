@@ -29,9 +29,10 @@ CREATE TABLE products (
 
 CREATE TABLE bids (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    product_id INTEGER NOT NULL, -- listing_id -> product_id oldu
+    product_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
     amount REAL NOT NULL,
+    message TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE

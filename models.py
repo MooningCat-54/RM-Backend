@@ -48,6 +48,7 @@ class Bid(Base):
     product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
     user_id = Column(Integer, ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False)
     amount = Column(Float, nullable=False)
+    message = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     product = relationship("Product", back_populates="bids")
